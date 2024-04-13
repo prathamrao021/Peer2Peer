@@ -12,7 +12,22 @@ def handle_peer(peer_socket, peer_addr):
             data = peer_socket.recv(1024)
             if not data:
                 break
-            print(f"Received from {peer_addr[0]}:{peer_addr[1]}: {data.decode()}")
+            elif data.decode().lower().startswith('transfer'):
+                _, filename = data.decode().split()
+                filename = "new"+filename
+                print(filename)
+                with open(filename, 'wb') as file:
+                    while True:
+                        chunk = peer_socket.recv(1024)
+                        if chunk.endswith(b'END_OF_FILE'):
+                            print("Reached End")
+                            chunk = chunk[:-len(b'END_OF_FILE')]
+                            file.write(chunk)
+                            break
+                        file.write(chunk)
+                print(f"File {filename} received.")
+            else:
+                print(f"Received from {peer_addr[0]}:{peer_addr[1]}: {data.decode()}")
         except Exception as e:
             print("Error:", e)
             break
@@ -38,9 +53,21 @@ def connect_to_peer(peer_ip, peer_port, timeout=5):
         print(f"[*] Connected to peer {peer_ip}:{peer_port}")
         while True:
             message = input("Enter message to send (type 'exit' to quit): ")
+            client_socket.sendall(message.encode())
             if message.lower() == 'exit':
                 break
-            client_socket.sendall(message.encode())
+            #if the message is to transfer a file
+            if message.lower().startswith('transfer'):
+                _, filename = message.split()
+                if os.path.isfile(filename):
+                    with open(filename, 'rb') as file:
+                        chunk = file.read(1024)
+                        while chunk:
+                            client_socket.send(chunk)
+                            chunk = file.read(1024)
+                    client_socket.send(b'END_OF_FILE')
+                else:
+                    print(f"File {filename} not found.")
         client_socket.close()
     except socket.timeout:
         print(f"Connection to peer {peer_ip}:{peer_port} timed out. Peer may not be reachable.")
@@ -55,10 +82,11 @@ def connect_to_peer(peer_ip, peer_port, timeout=5):
 
 if __name__ == "__main__":
     # Port for this peer to listen on
-    
     # listen_port = 8888
-    listen_port = int(input("Enter the listening port number: "))
-    print(f"[*] Listening on port {listen_port}")
+    try:
+        listen_port = int(sys.argv[1])
+    except:
+        listen_port = int(input("Enter the listening port number: "))
     # Start listening for incoming connections from other peers
     listener_thread = threading.Thread(target=start_listener, args=(listen_port,))
     listener_thread.start()
