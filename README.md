@@ -49,7 +49,13 @@ This project implements a **multi-threaded peer-to-peer (P2P) communication syst
    Enter message to send: transfer example.txt
 
 ## Example
-. Peer A listens on port 8888.
-. Peer B connects to Peer A on localhost:8888 and sends a message or transfers a file.
-. Both peers can continue to send messages and transfer files concurrently.
+- Peer A listens on port 8888.
+- Peer B connects to Peer A on localhost:8888 and sends a message or transfers a file.
+- Both peers can continue to send messages and transfer files concurrently.
+
+## Error Handling
+- Timeouts: If a peer is unreachable within a specified time, a timeout error is handled gracefully.
+- Connection Refusal: The program handles cases where a peer connection is refused, ensuring a smooth user experience.
+
+
    
