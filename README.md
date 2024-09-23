@@ -29,10 +29,10 @@ This project implements a **multi-threaded peer-to-peer (P2P) communication syst
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/p2p-connection-system.git
+   git clone https://github.com/prathamrao021/Peer2Peer.git
 2. Navigate to the project directory:
    ```bash
-   cd p2p-connection-system
+   cd Peer2Peer
 
 ## Usage
 1. Run the Listener: Start the peer's listener on a specific port:
